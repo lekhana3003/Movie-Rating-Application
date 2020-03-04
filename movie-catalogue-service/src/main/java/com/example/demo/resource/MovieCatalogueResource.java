@@ -11,6 +11,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.example.demo.model.CatalogueItem;
@@ -28,29 +29,20 @@ public class MovieCatalogueResource {
 	CatalogueItemRepository catalogueItemRepository;
 	
 	@Autowired
-	private WebClient webClientBuilder;
+    private RestTemplate restTemplate;
 	
 	@GetMapping(value="/getCatalogue/{userId}")
 	 public List<CatalogueItem> getCatalog(@PathVariable("userId") String userId) {
 		List<CatalogueItem> catalogueList=new ArrayList<CatalogueItem>();
-		User user =webClientBuilder.get()
-				.uri("localhost:8084/userdata/"+userId)
-				.retrieve()
-				.bodyToMono(User.class)
-				.block();
+		User user =restTemplate.getForObject("http://USER-INFO-SERVICE/userdata/" + userId, User.class);
 		System.out.println(user.getUserId());
 		for(Integer movieId:user.getMovieList())
 		{
-			Rating rating=webClientBuilder.get()
-					.uri("localhost:8082/ratingsdata/"+movieId+"/"+user.getUserId())
-					.retrieve()
-					.bodyToMono(Rating.class)
-					.block();
-			Movie movie=webClientBuilder.get()
-					.uri("localhost:8081/movies/"+movieId)
-					.retrieve()
-					.bodyToMono(Movie.class)
-					.block();
+			Rating rating=restTemplate.getForObject("http://movie-rating-service/ratingsdata/"+movieId+"/"+user.getUserId(), Rating.class);
+					
+			Movie movie=restTemplate.getForObject("http://movie-info-service//movies/"+movieId, Movie.class);
+			
+			
 			catalogueList.add(new CatalogueItem(movie.getName(), movie.getDesc(),rating.getRating()));
 		}
 		
