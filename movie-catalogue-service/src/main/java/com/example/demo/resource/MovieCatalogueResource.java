@@ -46,28 +46,6 @@ public class MovieCatalogueResource {
 			catalogueList.add(new CatalogueItem(movie.getName(), movie.getDesc(),rating.getRating()));
 		}
 		
-		/*List<Rating> ratings=webClientBuilder.get()
-							.uri("localhost:8082/ratingsdata/1")
-							.retrieve()
-							.bodyToMono(new ParameterizedTypeReference<List<Rating>>() {})
-							.block();*/
-		
-		
-		/*List<Rating> ratings=Arrays.asList(
-				new Rating(1,3),
-				new Rating(2,3)
-				);
-		for(Rating rating:ratings){
-			Movie movie=webClientBuilder.get()
-			.uri("localhost:8081/movies/"+rating.getMovieId())
-			.retrieve()
-			.bodyToMono(Movie.class)
-			.block();
-			//System.out.println(movie.getName()+rating.getRating());
-		
-		}
-				
-			*/
 		
 		return catalogueList;
 	 }
